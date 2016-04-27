@@ -6,16 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 public class ObjectDataBase {
-	public List<Product> products;
-	public List<Category> categories;
-	public transient Map<Integer,Product> productIdIndex;
-	public transient Map<Integer,Product> categoryIdIndex;
+	public List<Product> products = new ArrayList<>();
+	public List<Category> categories = new ArrayList<>();
+	public List<ProductType> productTypes = new ArrayList<>();
+	public transient Map<Integer,Product> productIdIndex = new HashMap<>();
+	public transient Map<Integer,Category> categoryIdIndex = new HashMap<>();
+	public transient Map<Integer,ProductType> productTypeIdIndex = new HashMap<>();
 	
-	public ObjectDataBase(){
-		products = new ArrayList<>();
-		categories = new ArrayList<>();
-		productIdIndex = new HashMap<>();
-		categoryIdIndex = new HashMap<>();
-		
-	}
 }

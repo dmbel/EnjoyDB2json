@@ -1,7 +1,6 @@
 package ru.enjoy.server;
 
-import ru.enjoy.server.data.ObjectDataBase;
-import ru.enjoy.server.data.Product;
+import ru.enjoy.server.data.*;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -9,6 +8,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.*;
 import java.io.*;
 import java.lang.reflect.Field;
+
 
 /**
  * Загрузчик данных из файла базы данных
@@ -21,6 +21,8 @@ public class DataBase2Object {
 	// Здесь поля нужно перечислить в том порядке в котором они идут в span-ах
 	private static final String[] FLDS_PRODUCT = { null, "id", "name", "type", "shortDesc", "comment", "url", "width",
 			"height", "unitForPrice", "photoDesc" };
+	private static final String[] FLDS_CATEGORY = { null, "id", "type", "name", "url"};
+	private static final String[] FLDS_PRODUCT_TYPE = { null, "id", "name", "mainCategoryId"};
 
 	public String fileName;
 
@@ -46,13 +48,25 @@ public class DataBase2Object {
 				objectDataBase.products.add(p);
 				objectDataBase.productIdIndex.put(p.id, p);
 				break;
+			case "productCategories":
+				Category c = new Category();
+				setObjFlds(c,vals,FLDS_CATEGORY);
+				objectDataBase.categories.add(c);
+				objectDataBase.categoryIdIndex.put(c.id, c);
+				break;
+			case "productTypes":
+				ProductType pt = new ProductType();
+				setObjFlds(pt,vals,FLDS_PRODUCT_TYPE);
+				objectDataBase.productTypes.add(pt);
+				objectDataBase.productTypeIdIndex.put(pt.id, pt);
+				break;
 			}
 		}
 		return objectDataBase;
 	}
 
 	/**
-	 * Вытащить массив из 11 строковых значений, лежащих во вложенных span
+	 * Вытащить массив из 11 строковых значений, лежащих во вложенном span
 	 * 
 	 * @param node
 	 * @return
@@ -70,9 +84,21 @@ public class DataBase2Object {
 		return vals;
 	}
 
+	/**
+	 * В поля объекта obj заранее неизвестного класса заполняет данные из массива vals,
+	 * список имен полей передается параметром fldsList
+	 * @param obj
+	 * @param vals
+	 * @param fldsList
+	 * @throws NoSuchFieldException
+	 * @throws SecurityException
+	 * @throws NumberFormatException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
 	private void setObjFlds(Object obj, String[] vals, String[] fldsList) throws NoSuchFieldException, SecurityException, NumberFormatException, IllegalArgumentException, IllegalAccessException {
 		Class cls = obj.getClass();
-		for (int i = 1; i < vals.length; i++) {
+		for (int i = 0; (i < vals.length)&&(i < fldsList.length); i++) {
 			String fld = fldsList[i];
 			if (fld != null) {
 				Field f = cls.getDeclaredField(fld);
