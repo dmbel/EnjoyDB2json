@@ -1,5 +1,8 @@
 package ru.enjoy.server.data;
 
+import ru.enjoy.server.DBTable;
+
+@DBTable(TableName = "productCategories", ColumnOrder = ",id,type,name,url")
 public class Category {
 	public int id;
 	public int type;
