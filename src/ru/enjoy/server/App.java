@@ -11,6 +11,7 @@ import org.xml.sax.SAXException;
 
 import com.google.gson.*;
 
+import ru.enjoy.server.data.Category;
 import ru.enjoy.server.data.Product;
 
 public class App {
@@ -22,10 +23,10 @@ public class App {
 					+ "файлу в который записать json данные");
 			return;
 		}
-		
+		Category c = new Category();
 				
 		DataBase2Object loader = new DataBase2Object();
-		loader.addObjectClassList(JsonObjectContainer.DATA_CLASS_LIST);
+		loader.registerClassList(JsonObjectContainer.DATA_CLASS_LIST);
 		
 		JsonObjectContainer joc = new JsonObjectContainer();
 
@@ -48,7 +49,7 @@ public class App {
 
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-		//System.out.println(gson.toJson(odb));
+		System.out.println(gson.toJson(joc.root));
 	}
 
 }

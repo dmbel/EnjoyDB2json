@@ -1,8 +1,7 @@
 package ru.enjoy.server.data;
 
 import ru.enjoy.server.DBTable;
-
-@DBTable(TableName = "products", ColumnOrder = ",id,name,type,shortDesc,comment,url,width,height,unitForPrice,photoDesc")
+@DBTable(TableName = "products", JsonListName="products", ColumnOrder = ",id,name,type,shortDesc,comment,url,width,height,unitForPrice,photoDesc")
 public class Product {
 	public int id;
 	public String name;
