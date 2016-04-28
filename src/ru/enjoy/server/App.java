@@ -11,12 +11,13 @@ import org.xml.sax.SAXException;
 
 import com.google.gson.*;
 
+import ru.enjoy.server.DataBase2Object.BadDataAnnotationExeption;
 import ru.enjoy.server.data.Category;
 import ru.enjoy.server.data.Product;
 
 public class App {
 
-	public static void main(String[] args) throws NumberFormatException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, ClassNotFoundException, InstantiationException {
+	public static void main(String[] args) throws NumberFormatException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, ClassNotFoundException, InstantiationException, BadDataAnnotationExeption {
 		if (args.length < 2) {
 			System.out.println("Error! В строке запуска EnjoyDB2json, должны быть "
 					+ "указаны 2 параметра: путь файла выгруженной базы и путь к "
