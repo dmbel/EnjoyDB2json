@@ -3,15 +3,14 @@ package ru.enjoy.server;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-import ru.enjoy.server.data.Product;
-
 import javax.xml.parsers.*;
 
 import java.io.*;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+
+import static ru.enjoy.server.Exeptions.*;
 
 /**
  * Загрузчик данных из файла базы данных в объекты
@@ -26,32 +25,37 @@ public class DataBase2Object {
 	private static final String DB_FIELD_TAG = "span"; // Тег обрамляющий поле
 
 	// Карта соотвествия имени таблицы классу объекта
-	private Map<String, Class> table2objectClassMap = new HashMap<>();
+	private Map<String, Class<Object>> table2objectClassMap = new HashMap<>();
 	// Имя таблицы - Порядок полей
 	private Map<String, String[]> table2columnOrder = new HashMap<>();
 
 	public void load(String fileName, JsonObjectContainer joc)
-			throws ParserConfigurationException, FileNotFoundException, SAXException, IOException,
-			NumberFormatException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException,
-			SecurityException, InstantiationException, BadDataAnnotationExeption {
-		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			throws ParserConfigurationException, FileNotFoundException,
+			SAXException, IOException, BadDataAnnotationExeption {
+		DocumentBuilder builder = DocumentBuilderFactory.newInstance()
+				.newDocumentBuilder();
 		// ObjectDataBase objectDataBase = new ObjectDataBase();
 		Document doc = builder.parse(new FileInputStream(fileName));
 		NodeList pList = doc.getElementsByTagName(DB_RECORD_TAG);
 		for (int i = 0; i < pList.getLength(); i++) {
 			String[] vals = getValsFromPTag(pList.item(i));
-			Class cls = table2objectClassMap.get(vals[0]);
+			Class<Object> cls = table2objectClassMap.get(vals[0]);
 			if (cls == null)
 				continue;
-			Object rec = cls.newInstance();
+			Object rec;
+			try {
+				rec = cls.newInstance();
+			} catch (IllegalAccessException | InstantiationException e) {
+				throw new DataClassObjectExeption(cls.getName(), e); 
+			}
 			setObjFlds(rec, vals, table2columnOrder.get(vals[0]));
 			joc.putObject(rec);
 		}
 	}
 
 	/**
-	 * Вытащить массив из MAX_FLDS_NUM строковых значений, лежащих во вложенном
-	 * span
+	 * Получение массива данных из узла записи.
+	 * (Разбор тегов DB_FIELD_TAG)
 	 * 
 	 * @param node
 	 * @return
@@ -75,7 +79,8 @@ public class DataBase2Object {
 	 * @throws BadDataAnnotationExeption
 	 */
 	private void setObjFlds(Object obj, String[] vals, String[] fldsList)
-			throws SecurityException, NumberFormatException, IllegalArgumentException, BadDataAnnotationExeption {
+			throws BadDataAnnotationExeption {
+		@SuppressWarnings("rawtypes")
 		Class cls = obj.getClass();
 		// минимум из размеров массива имен полей и массива значений
 		int min = vals.length < fldsList.length ? vals.length : fldsList.length;
@@ -86,11 +91,7 @@ public class DataBase2Object {
 				try {
 					f = cls.getDeclaredField(fld);
 				} catch (NoSuchFieldException e) {
-					throw new BadDataAnnotationExeption(
-							"Class " + obj.getClass().getName() + " has item=\"" + fld
-									+ "\" in ColumnOrder attribute of DBTable annotation, but has no this public field",
-							BadDataAnnotationExeption.TYPE_NO_FIELD, obj.getClass().getName(), fld, "DBTable",
-							"ColumnOrder");
+					throw new DataFieldNoExistsExeption(cls.getName(), fld, e);
 				}
 				try {
 					if (f.getType().toString().equals("int")) {
@@ -99,9 +100,9 @@ public class DataBase2Object {
 						f.set(obj, vals[i]);
 					}
 				} catch (IllegalAccessException e) {
-					throw new BadDataAnnotationExeption(
-							"Field " + fld + " in class " + obj.getClass().getName() + " must be public",
-							BadDataAnnotationExeption.TYPE_NO_FIELD_ACCESS, obj.getClass().getName(), fld, null, null);
+					throw new DataFieldAccessExeption(cls.getName(), fld, e);
+				} catch (NumberFormatException e) {
+					throw new DataNoIntegerExeption(cls.getName(), fld, vals[i], e);
 				}
 
 			}
@@ -115,56 +116,22 @@ public class DataBase2Object {
 	 * @param classNames
 	 *            массив имен классов
 	 */
-	public void registerClassList(String[] classNames) throws BadDataAnnotationExeption {
+	@SuppressWarnings("unchecked")
+	public void registerClassList(String[] classNames)
+			throws BadDataAnnotationExeption {
 		for (int i = 0; i < classNames.length; i++) {
-			Class<?> cls;
+			Class<Object> cls;
 			try {
-				cls = Class.forName(classNames[i]);
+				cls = (Class<Object>) Class.forName(classNames[i]);
 			} catch (ClassNotFoundException e) {
-				throw new BadDataAnnotationExeption(
-						"Class " + classNames[i] + " not exists, but Application try to register it",
-						BadDataAnnotationExeption.TYPE_NO_CLASS, classNames[i], null, null, null);
+				throw new NoDataClassExeption(classNames[i], e);
 			}
 			DBTable an = cls.getAnnotation(DBTable.class);
 			if (an == null)
-				throw new BadDataAnnotationExeption("Class " + classNames[i] + " must have DBTable annotation",
-						BadDataAnnotationExeption.TYPE_NO_ANN, classNames[i], null, "DBTable", null);
+				throw new NoDBTableAnnotationExeption(classNames[i]);
 			table2objectClassMap.put(an.TableName(), cls);
 			table2columnOrder.put(an.TableName(), an.ColumnOrder().split(","));
 		}
 	}
 
-	/**
-	 * Исключение для ошибок в аннотировании классов пакета data
-	 * 
-	 * @author dm
-	 */
-	public class BadDataAnnotationExeption extends Exception {
-		public static final int TYPE_NO_ANN = 1;
-		public static final int TYPE_NO_CLASS = 2;
-		public static final int TYPE_NO_FIELD = 3;
-		public static final int TYPE_NO_FIELD_ACCESS = 4;
-		public static final int TYPE_BAD_TYPE = 4;
-
-		public int type;
-		public String className;
-		public String fieldName;
-		public String annotationName;
-		public String annotationAttr;
-
-		public BadDataAnnotationExeption() {
-			super();
-		}
-
-		public BadDataAnnotationExeption(String msg, int type, String className, String fieldName, String annotationName,
-				String annotationAttr) {
-			super(msg);
-			this.type = type;
-			this.className = className;
-			this.fieldName = fieldName;
-			this.annotationName = annotationName;
-			this.annotationAttr = annotationAttr;
-		}
-	}
-	
 }

@@ -1,56 +1,38 @@
 package ru.enjoy.server;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
-import java.util.Enumeration;
-
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
 import com.google.gson.*;
 
-import ru.enjoy.server.DataBase2Object.BadDataAnnotationExeption;
+import ru.enjoy.server.Exeptions.BadDataAnnotationExeption;
 import ru.enjoy.server.data.Category;
-import ru.enjoy.server.data.Product;
+import static ru.enjoy.server.Exeptions.*;
 
 public class App {
 
-	public static void main(String[] args) throws NumberFormatException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, ClassNotFoundException, InstantiationException, BadDataAnnotationExeption {
+	public static void main(String[] args) {
 		if (args.length < 2) {
 			System.out.println("Error! В строке запуска EnjoyDB2json, должны быть "
 					+ "указаны 2 параметра: путь файла выгруженной базы и путь к "
 					+ "файлу в который записать json данные");
 			return;
 		}
-		Category c = new Category();
-				
 		DataBase2Object loader = new DataBase2Object();
-		loader.registerClassList(JsonObjectContainer.DATA_CLASS_LIST);
-		
-		JsonObjectContainer joc = new JsonObjectContainer();
-
-		//ObjectDataBase odb = null;
+		JsonObjectContainer joc;
 		try {
+			loader.registerClassList(JsonObjectContainer.DATA_CLASS_LIST);
+			joc = new JsonObjectContainer();
 			loader.load(args[0], joc);
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			System.out.println(gson.toJson(joc.root));
+		} catch (ParserConfigurationException | SAXException | IOException | BadDataAnnotationExeption e) {
+			System.out.println(e.getMessage());
 			return;
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-		System.out.println(gson.toJson(joc.root));
 	}
 
 }
