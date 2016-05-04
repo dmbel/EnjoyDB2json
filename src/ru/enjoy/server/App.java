@@ -13,7 +13,7 @@ import static ru.enjoy.server.Exeptions.*;
 
 public class App {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ClassNotFoundException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		if (args.length < 2) {
 			System.out.println("Error! В строке запуска EnjoyDB2json, должны быть "
 					+ "указаны 2 параметра: путь файла выгруженной базы и путь к "
@@ -26,6 +26,7 @@ public class App {
 			loader.registerClassList(JsonObjectContainer.DATA_CLASS_LIST);
 			joc = new JsonObjectContainer();
 			loader.load(args[0], joc);
+			joc.makeChilds();
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			System.out.println(gson.toJson(joc.root));
 		} catch (ParserConfigurationException | SAXException | IOException | BadDataAnnotationExeption e) {

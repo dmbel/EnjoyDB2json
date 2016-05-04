@@ -74,5 +74,18 @@ public class Exeptions {
 			this.fieldValue = fieldValue;
 		}
 	}
+	@SuppressWarnings("serial")
+	public static class DataNoUniqIdExeption extends BadDataAnnotationExeption {
+		public String fieldName;
+		public Object fieldValue;
+
+		public DataNoUniqIdExeption(String className, String fieldName, Object fieldValue) {
+			super(String.format(
+					"Field %s in class %s must be unique, but at least 2 objects have value=%s.",
+					fieldName, className, fieldValue.toString()), className);
+			this.fieldName = fieldName;
+			this.fieldValue = fieldValue;
+		}
+	}
 
 }
