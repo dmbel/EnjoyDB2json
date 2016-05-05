@@ -1,15 +1,15 @@
 package ru.enjoy.server;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.xml.sax.SAXException;
 
 import com.google.gson.*;
 
-import ru.enjoy.server.Exeptions.BadDataAnnotationExeption;
 import ru.enjoy.server.data.Category;
-import static ru.enjoy.server.Exeptions.*;
+import ru.enjoy.server.exceptions.Exeptions.BadDataAnnotationExeption;
+import static ru.enjoy.server.exceptions.Exeptions.*;
 
 public class App {
 
@@ -23,9 +23,8 @@ public class App {
 		DataBase2Object loader = new DataBase2Object();
 		JsonObjectContainer joc;
 		try {
-			loader.registerClassList(JsonObjectContainer.DATA_CLASS_LIST);
 			joc = new JsonObjectContainer();
-			loader.load(args[0], joc);
+			loader.load(new FileInputStream(args[0]), joc);
 			joc.makeChilds();
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			System.out.println(gson.toJson(joc.root));
