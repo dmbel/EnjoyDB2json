@@ -7,9 +7,7 @@ import org.xml.sax.SAXException;
 
 import com.google.gson.*;
 
-import ru.enjoy.server.data.Category;
-import ru.enjoy.server.exceptions.Exeptions.BadDataAnnotationExeption;
-import static ru.enjoy.server.exceptions.Exeptions.*;
+import ru.enjoy.server.exceptions.BadDataAnnotationException;
 
 public class App {
 
@@ -28,7 +26,7 @@ public class App {
 			joc.makeChilds();
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			System.out.println(gson.toJson(joc.root));
-		} catch (ParserConfigurationException | SAXException | IOException | BadDataAnnotationExeption e) {
+		} catch (ParserConfigurationException | SAXException | IOException | BadDataAnnotationException e) {
 			System.out.println(e.getMessage());
 			return;
 		}
