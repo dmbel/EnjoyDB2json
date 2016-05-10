@@ -3,7 +3,7 @@ package ru.enjoy.server.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.enjoy.server.DBTable;
+import ru.enjoy.server.json.DBTable;
 @DBTable(TableName = "products", JsonListName="products", ColumnOrder = ",id,name,type,shortDesc,comment,url,width,height,unitForPrice,photoDesc")
 public class Product {
 	public int id;

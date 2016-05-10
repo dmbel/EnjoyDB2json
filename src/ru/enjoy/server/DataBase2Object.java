@@ -38,7 +38,8 @@ public class DataBase2Object {
 		Document doc = builder.parse(in);
 		NodeList pList = doc.getElementsByTagName(DB_RECORD_TAG);
 		for (int i = 0; i < pList.getLength(); i++) {
-			receiver.putArray(getValsFromPTag(pList.item(i)));
+			String[] arr = getValsFromPTag(pList.item(i));
+			receiver.putArray(arr[0], arr);
 		}
 	}
 

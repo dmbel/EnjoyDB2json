@@ -7,7 +7,9 @@ import org.xml.sax.SAXException;
 
 import com.google.gson.*;
 
+import ru.enjoy.server.data.Root;
 import ru.enjoy.server.exceptions.BadDataAnnotationException;
+import ru.enjoy.server.json.JsonObjectContainer;
 
 public class App {
 
@@ -21,7 +23,7 @@ public class App {
 		DataBase2Object loader = new DataBase2Object();
 		JsonObjectContainer joc;
 		try {
-			joc = new JsonObjectContainer();
+			joc = new JsonObjectContainer(new Root());
 			loader.load(new FileInputStream(args[0]), joc);
 			joc.makeChilds();
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();

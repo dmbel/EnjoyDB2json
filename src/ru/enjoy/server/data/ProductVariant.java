@@ -1,7 +1,7 @@
 package ru.enjoy.server.data;
 
-import ru.enjoy.server.DBTable;
-import ru.enjoy.server.ChildEntity;
+import ru.enjoy.server.json.ChildEntity;
+import ru.enjoy.server.json.DBTable;
 
 @DBTable(TableName = "productVariants", JsonListName = "productVariants", ColumnOrder = ",id,productId,variant,parameterValue,main")
 @ChildEntity(parentClass = "ru.enjoy.server.data.Product", parentIdField = "id", parentListField = "variants", referenceField = "productId")
