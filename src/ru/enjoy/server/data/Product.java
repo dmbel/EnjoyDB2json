@@ -2,9 +2,11 @@ package ru.enjoy.server.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import ru.enjoy.server.data.specificator.ChildList;
+import ru.enjoy.server.data.specificator.DataObject;
 
-import ru.enjoy.server.DBTable;
-@DBTable(TableName = "products", JsonListName="products", ColumnOrder = ",id,name,type,shortDesc,comment,url,width,height,unitForPrice,photoDesc")
+@DataObject(typeCode = "products", fieldsOrder = { "", "id", "name", "type", "shortDesc", "comment", "url", "width",
+		"height", "unitForPrice", "photoDesc" })
 public class Product {
 	public int id;
 	public String name;
@@ -16,5 +18,6 @@ public class Product {
 	public String height;
 	public String unitForPrice;
 	public String photoDesc;
+	@ChildList(childClass = "ru.enjoy.server.data.ProductVariant", idField = "id", refField = "productId")
 	public List<ProductVariant> variants = new ArrayList<>();
 }

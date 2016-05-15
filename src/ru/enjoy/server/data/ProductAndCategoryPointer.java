@@ -1,10 +1,9 @@
 package ru.enjoy.server.data;
 
-import ru.enjoy.server.DBTable;
-import ru.enjoy.server.ChildEntity;
+import ru.enjoy.server.data.specificator.DataObject;
 
-@DBTable(TableName = "productAndCategoryPointers", JsonListName = "productAndCategoryPointers", ColumnOrder = ",id,productId,categoryId,variant,rating")
-@ChildEntity(parentClass = "ru.enjoy.server.data.Category", parentIdField = "id", parentListField = "products", referenceField = "categoryId")
+@DataObject(typeCode = "productAndCategoryPointers", fieldsOrder = { "", "id", "productId", "categoryId", "variant",
+		"rating" })
 public class ProductAndCategoryPointer {
 	transient public int id;
 	public int productId;

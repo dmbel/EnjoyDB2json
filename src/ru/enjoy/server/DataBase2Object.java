@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.enjoy.server.exceptions.*;
+import ru.enjoy.server.objbuilder.IArrayReceiver;
 
 /**
  * Загрузчик данных из файла базы данных в объекты
@@ -31,14 +32,15 @@ public class DataBase2Object {
 	// Имя таблицы - Порядок полей
 	private Map<String, String[]> table2columnOrder = new HashMap<>();
 
-	public void load(InputStream in, ArrayReceiver receiver)
+	public void load(InputStream in, IArrayReceiver receiver)
 			throws ParserConfigurationException, SAXException, IOException, BadDataAnnotationException {
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance()
 				.newDocumentBuilder();
 		Document doc = builder.parse(in);
 		NodeList pList = doc.getElementsByTagName(DB_RECORD_TAG);
 		for (int i = 0; i < pList.getLength(); i++) {
-			receiver.putArray(getValsFromPTag(pList.item(i)));
+			String[] vals = getValsFromPTag(pList.item(i));
+			receiver.putArray(vals[0], vals);
 		}
 	}
 

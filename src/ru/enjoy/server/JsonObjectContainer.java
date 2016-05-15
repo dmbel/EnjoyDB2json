@@ -7,9 +7,10 @@ import java.util.Map;
 
 import ru.enjoy.server.data.*;
 import ru.enjoy.server.exceptions.BadDataAnnotationException;
+import ru.enjoy.server.objbuilder.IArrayReceiver;
 
 @SuppressWarnings("rawtypes")
-public class JsonObjectContainer implements ArrayReceiver {
+public class JsonObjectContainer implements IArrayReceiver {
 	public static final String[] DATA_CLASS_LIST = {
 			"ru.enjoy.server.data.Category", "ru.enjoy.server.data.Product",
 			"ru.enjoy.server.data.ProductType",
@@ -184,7 +185,7 @@ public class JsonObjectContainer implements ArrayReceiver {
 	}
 
 	@Override
-	public void putArray(String[] vals) throws BadDataAnnotationException {
+	public void putArray(String type, String[] vals) throws BadDataAnnotationException {
 		Holder h = tableName2Holder.get(vals[0]);
 		if (h == null)
 			return;
