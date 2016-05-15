@@ -11,6 +11,7 @@ import com.google.gson.*;
 import ru.enjoy.server.data.Root;
 import ru.enjoy.server.exceptions.BadDataAnnotationException;
 import ru.enjoy.server.objbuilder.ObjectBuilder;
+
 public class App {
 
 	public static void main(String[] args) throws ClassNotFoundException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, FileNotFoundException, ParserConfigurationException, SAXException, IOException, BadDataAnnotationException {
