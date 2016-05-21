@@ -69,6 +69,7 @@ public class App {
 			ob.makeStruct();
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			// OutputStream out = new FileOutputStream(args[1]);
+			
 			wr = new PrintWriter(new GZIPOutputStream(new FileOutputStream(args[1])));
 			wr.print(gson.toJson(ob.getRoot()));
 		} catch (IOException | BadDataAnnotationException
