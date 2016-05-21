@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -68,11 +69,12 @@ public class App {
 			ob.makeStruct();
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			// OutputStream out = new FileOutputStream(args[1]);
-			wr = new PrintWriter(new File(args[1]));
+			wr = new PrintWriter(new GZIPOutputStream(new FileOutputStream(args[1])));
 			wr.print(gson.toJson(ob.getRoot()));
 		} catch (IOException | BadDataAnnotationException
 				| ParserConfigurationException | SAXException e) {
-			System.out.println(e.getMessage());
+			System.out.println(e.getClass().getName() + ": " + e.getMessage());
+			e.printStackTrace();
 		} finally {
 			try {
 				if (bdIn != null) {
@@ -82,7 +84,6 @@ public class App {
 					wr.close();
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

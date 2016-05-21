@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="EnjoyDB2Json" default="Main" basedir=".">
+	<target name="Main">
+		<jar destfile="enjoydb2json.jar" basedir="bin" includes="**">
+		</jar>
+	</target>
+</project>
