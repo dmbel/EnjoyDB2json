@@ -6,10 +6,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.*;
 
 import java.io.*;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-
 import ru.enjoy.server.exceptions.*;
 import ru.enjoy.server.objbuilder.IArrayReceiver;
 
@@ -24,13 +20,6 @@ public class DataBase2Object {
 												// записи
 	private static final String DB_RECORD_TAG = "p"; // Тег обрамляющий запись
 	private static final String DB_FIELD_TAG = "span"; // Тег обрамляющий поле
-
-	//
-
-	// Карта соотвествия имени таблицы классу объекта
-	private Map<String, Class<Object>> table2objectClassMap = new HashMap<>();
-	// Имя таблицы - Порядок полей
-	private Map<String, String[]> table2columnOrder = new HashMap<>();
 
 	public void load(InputStream in, IArrayReceiver receiver)
 			throws ParserConfigurationException, SAXException, IOException,

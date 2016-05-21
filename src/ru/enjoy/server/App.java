@@ -1,23 +1,16 @@
 package ru.enjoy.server;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.SequenceInputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
@@ -29,7 +22,6 @@ import com.google.gson.*;
 
 import ru.enjoy.server.data.Root;
 import ru.enjoy.server.exceptions.BadDataAnnotationException;
-import ru.enjoy.server.objbuilder.IArrayReceiver;
 import ru.enjoy.server.objbuilder.ObjectBuilder;
 
 public class App {
