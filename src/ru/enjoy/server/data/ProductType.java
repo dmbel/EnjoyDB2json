@@ -1,8 +1,9 @@
 package ru.enjoy.server.data;
 
-import ru.enjoy.server.json.DBTable;
+import ru.enjoy.server.data.specificator.DataObject;
 
-@DBTable(TableName = "productTypes", JsonListName="productTypes", ColumnOrder = ",id,name,mainCategoryId")
+@DataObject(typeCode = "productTypes", fieldsOrder = { "", "id", "name",
+		"mainCategoryId" })
 public class ProductType {
 	public int id;
 	public String name;

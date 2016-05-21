@@ -1,6 +1,5 @@
 package ru.enjoy.server.data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ru.enjoy.server.data.specificator.ChildList;
@@ -13,5 +12,5 @@ public class Category {
 	public String name;
 	public String url;
 	@ChildList(childClass = "ru.enjoy.server.data.ProductAndCategoryPointer", idField = "id", refField = "categoryId")
-	public List<ProductAndCategoryPointer> products = new ArrayList<>();
+	public List<ProductAndCategoryPointer> products;
 }
