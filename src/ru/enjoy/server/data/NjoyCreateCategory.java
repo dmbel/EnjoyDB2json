@@ -2,7 +2,7 @@ package ru.enjoy.server.data;
 
 import java.util.List;
 
-import ru.enjoy.server.data.specificator.ChildList;
+import ru.enjoy.server.data.specificator.Child;
 import ru.enjoy.server.data.specificator.DataObject;
 
 @DataObject(typeCode = "njoyCreateCategories", fieldsOrder = { "", "id",
@@ -11,6 +11,6 @@ public class NjoyCreateCategory {
 	public int id;
 	public String name;
 	public String url;
-	@ChildList(childClass = "ru.enjoy.server.data.NjoyCreateProductAndCategoryPointer", idField = "id", refField = "categoryId")
+	@Child(childClass = "ru.enjoy.server.data.NjoyCreateProductAndCategoryPointer", idField = "id", refField = "categoryId")
 	public List<NjoyCreateProductAndCategoryPointer> products;
 }

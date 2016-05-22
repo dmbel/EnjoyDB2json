@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.enjoy.server.data.specificator.ChildList;
+import ru.enjoy.server.data.specificator.Child;
 import ru.enjoy.server.data.specificator.DataObject;
 import ru.enjoy.server.data.specificator.TableList;
 import ru.enjoy.server.exceptions.BadDataAnnotationException;
@@ -42,74 +42,36 @@ public class ObjectBuilder implements IArrayReceiver {
 	 * @throws BadDataAnnotationException
 	 */
 	@Override
-	public void putArray(String type, String[] vals)
-			throws BadDataAnnotationException {
+	public void putArray(String type, String[] vals) throws BadDataAnnotationException {
 		Holder h = tableName2Holder.get(type);
 		if (h == null)
 			return;
-		int cnt = (vals.length < h.columnOrder.length) ? vals.length
-				: h.columnOrder.length;
+		int cnt = (vals.length < h.columnOrder.length) ? vals.length : h.columnOrder.length;
 		Object obj;
 		try {
 			obj = h.cls.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
-			throw new BadDataAnnotationException(
-					"Error occured while putting new DB record to object of class "
-							+ h.cls.getName() + ". " + e.getMessage(), e);
+			throw new BadDataAnnotationException("Error occured while putting new DB record to object of class "
+					+ h.cls.getName() + ". " + e.getMessage(), e);
 		}
 		for (int i = 0; i < cnt; i++) {
 			String fldName = h.columnOrder[i];
 			if (!fldName.isEmpty()) {
 				Field f = getField(h.cls, fldName,
 						"This name used in 'fieldsOrder' attribute of 'DataObject' annotation.");
-				String fType = null;
-				try {
-					fType = f.getType().getCanonicalName();
-					switch (fType) {
-					case "int":
-						f.setInt(
-								obj,
-								vals[i].isEmpty() ? 0 : Integer
-										.parseInt(vals[i]));
-						break;
-					case "long":
-						f.setLong(obj,
-								vals[i].isEmpty() ? 0 : Long.parseLong(vals[i]));
-						break;
-					case "double":
-						f.setDouble(obj, Double.parseDouble(vals[i]));
-						break;
-					case "java.lang.String":
-						f.set(obj, vals[i]);
-						break;
-					}
-				} catch (IllegalAccessException e) {
-					String msg = String
-							.format("It seems field '%s' of class '%s' is not 'public'. ",
-									fldName, h.cls.getName());
-					throw new BadDataAnnotationException(msg, e);
-				} catch (NumberFormatException e) {
-					String msg = String
-							.format("Value '%s' can not be parsed as '%s' value for '%s' field of class '%s'.",
-									vals[i], fType, fldName, h.cls.getName());
-					throw new BadDataAnnotationException(msg, e);
-				}
-
+				set(obj, f, vals[i], "Filling data from BD to object. ");
 			}
 		}
 		h.list.add(obj);
 
 	}
 
-	private Field getField(Class<?> cls, String fieldName, String addMsg)
-			throws BadDataAnnotationException {
+	private Field getField(Class<?> cls, String fieldName, String addMsg) throws BadDataAnnotationException {
 		try {
 			return cls.getDeclaredField(fieldName);
 		} catch (NoSuchFieldException e) {
-			throw new BadDataAnnotationException(String.format(
-					"Field '%s' does not exist in class '%s'. ", fieldName,
-					cls.getName())
-					+ addMsg, e);
+			throw new BadDataAnnotationException(
+					String.format("Field '%s' does not exist in class '%s'. ", fieldName, cls.getName()) + addMsg, e);
 		}
 	}
 
@@ -121,7 +83,7 @@ public class ObjectBuilder implements IArrayReceiver {
 
 	private void registerChilds(Class<?> cls) throws BadDataAnnotationException {
 		for (Field field : cls.getFields()) {
-			ChildList chList = field.getAnnotation(ChildList.class);
+			Child chList = field.getAnnotation(Child.class);
 			TableList tableList = field.getAnnotation(TableList.class);
 			String clsName = null;
 
@@ -133,10 +95,9 @@ public class ObjectBuilder implements IArrayReceiver {
 				try {
 					registerClass(Class.forName(clsName));
 				} catch (ClassNotFoundException e) {
-					throw new BadDataAnnotationException(
-							String.format(
-									"Class name '%s' used in annotation inside '%s', but such class does not exist in classpath.",
-									clsName, cls.getName()), e);
+					throw new BadDataAnnotationException(String.format(
+							"Class name '%s' used in annotation inside '%s', but such class does not exist in classpath.",
+							clsName, cls.getName()), e);
 				}
 			}
 		}
@@ -169,8 +130,7 @@ public class ObjectBuilder implements IArrayReceiver {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void makeStructInternal(Class<?> cls)
-			throws BadDataAnnotationException {
+	private void makeStructInternal(Class<?> cls) throws BadDataAnnotationException {
 		Holder h = className2Holder.get(cls.getCanonicalName());
 		if (h.makedStruct)
 			return;
@@ -187,28 +147,30 @@ public class ObjectBuilder implements IArrayReceiver {
 				}
 				makeStructInternal(chHolder.cls);
 			}
-			ChildList chList = field.getAnnotation(ChildList.class);
+			Child chList = field.getAnnotation(Child.class);
 			if (chList != null) {
+				// тип поля
+				Class fieldType = field.getType();
+				// Holder Описание класса на который ссылается аннотация
+				// Child
 				Holder chHolder = className2Holder.get(chList.childClass());
 				String[] idFields = chList.idField();
 				Field[] idFieldFlds = new Field[idFields.length];
 				for (int i = 0; i < idFields.length; i++) {
 					idFieldFlds[i] = getField(h.cls, idFields[i],
-							"Field used in idFields attribute of annotation ChildList");
+							"Field used in idFields attribute of annotation Child");
 				}
 				String[] refFields = chList.refField();
 				Field[] refFieldFlds = new Field[refFields.length];
 				for (int i = 0; i < idFields.length; i++) {
 					refFieldFlds[i] = getField(chHolder.cls, refFields[i],
-							"Field used in refFields attribute of annotation ChildList in class "
-									+ cls.getName());
+							"Field used in refFields attribute of annotation Child in class " + cls.getName());
 				}
 				Map<ComplexKey, Object> idIndex = new HashMap<>();
 				for (Object parent : h.list) {
 					Object[] key = new Object[idFields.length];
 					for (int i = 0; i < idFields.length; i++) {
-						key[i] = get(parent, idFieldFlds[i],
-								"Field used in idFields attribute of annotation ChildList");
+						key[i] = get(parent, idFieldFlds[i], "Field used in idFields attribute of annotation Child");
 					}
 					idIndex.put(new ComplexKey(key), parent);
 				}
@@ -216,14 +178,20 @@ public class ObjectBuilder implements IArrayReceiver {
 					Object[] key = new Object[refFields.length];
 					for (int i = 0; i < refFields.length; i++) {
 						key[i] = get(child, refFieldFlds[i],
-								"Field used in refFields attribute of annotation ChildList in class "
-										+ cls.getName());
+								"Field used in refFields attribute of annotation Child in class " + cls.getName());
 					}
 					Object parent = idIndex.get(new ComplexKey(key));
 					if (parent != null) {
-						List<Object> lst = getCreateList(parent, field,
-								"Field annotated by ChildList");
-						lst.add(child);
+						// Один ко многим
+						if (fieldType == List.class) {
+							List<Object> lst = getCreateList(parent, field, "Field annotated by Child");
+							lst.add(child);
+						}
+						// Один к одному
+						if (chHolder.cls == fieldType) {
+							set(parent, field, child,
+									"Insert child object in to parent due to one to one relationship");
+						}
 					}
 				}
 				makeStructInternal(chHolder.cls);
@@ -232,33 +200,60 @@ public class ObjectBuilder implements IArrayReceiver {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private List getCreateList(Object obj, Field field, String addMsg)
-			throws BadDataAnnotationException {
+	private List getCreateList(Object obj, Field field, String addMsg) throws BadDataAnnotationException {
 		List<?> list = (List<?>) get(obj, field, addMsg);
 		if (list == null) {
 			list = new ArrayList<>();
 			try {
 				field.set(obj, list);
 			} catch (IllegalAccessException e) {
-				throw new BadDataAnnotationException(String.format(
-						"It seems field '%s' of class '%s' is not 'public'. ",
-						field.getName(), obj.getClass().getName())
-						+ addMsg, e);
+				throw new BadDataAnnotationException(
+						String.format("It seems field '%s' of class '%s' is not 'public'. ", field.getName(),
+								obj.getClass().getName()) + addMsg,
+						e);
 			}
 		}
 		return list;
 	}
 
-	private Object get(Object obj, Field field, String addMsg)
-			throws BadDataAnnotationException {
+	private Object get(Object obj, Field field, String addMsg) throws BadDataAnnotationException {
 		try {
 			return field.get(obj);
 		} catch (IllegalAccessException e) {
-			throw new BadDataAnnotationException(String.format(
-					"It seems field '%s' of class '%s' is not 'public'. ",
-					field.getName(), obj.getClass().getName())
-					+ addMsg, e);
+			throw new BadDataAnnotationException(String.format("It seems field '%s' of class '%s' is not 'public'. ",
+					field.getName(), obj.getClass().getName()) + addMsg, e);
 		}
+	}
+
+	private void set(Object obj, Field field, Object val, String addMsg) throws BadDataAnnotationException {
+		try {
+			// Тут возможно придется приводить тип
+			if ((val.getClass() == String.class) && (field.getType() != String.class)) {
+				String fType = field.getType().getName();
+				switch (fType) {
+				case "int":
+					field.setInt(obj, ((String) val).isEmpty() ? 0 : Integer.parseInt((String) val));
+					break;
+				case "long":
+					field.setLong(obj, ((String) val).isEmpty() ? 0 : Long.parseLong((String) val));
+					break;
+				case "double":
+					field.setDouble(obj, Double.parseDouble((String) val));
+					break;
+				}
+
+			} else {
+				field.set(obj, val);
+			}
+		} catch (IllegalAccessException e) {
+			throw new BadDataAnnotationException(String.format("It seems field '%s' of class '%s' is not 'public'. ",
+					field.getName(), obj.getClass().getName()) + addMsg, e);
+		} catch (NumberFormatException e) {
+			String msg = String.format("Value '%s' can not be parsed as '%s' value for '%s' field. ", val,
+					field.getType().toString(), field.getName());
+			throw new BadDataAnnotationException(msg + addMsg, e);
+		}
+
 	}
 
 	/**

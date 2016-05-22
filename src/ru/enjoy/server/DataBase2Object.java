@@ -59,6 +59,11 @@ public class DataBase2Object {
 				}
 			}
 			receiver.putArray(type, vals);
+			
+			// productCategories нужно еще в один объект положить для ссылок
+			if(type.equals("productCategories")) {
+				receiver.putArray("productCategoriesLink", vals);
+			}
 		}
 	}
 

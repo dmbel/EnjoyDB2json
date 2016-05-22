@@ -3,7 +3,7 @@ package ru.enjoy.server.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.enjoy.server.data.specificator.ChildList;
+import ru.enjoy.server.data.specificator.Child;
 import ru.enjoy.server.data.specificator.DataObject;
 
 @DataObject(typeCode = "productVariants", fieldsOrder = { "", "id",
@@ -14,13 +14,13 @@ public class Variant {
 	public String variant;
 	public String parameterValue;
 	public String main;
-	@ChildList(childClass = "ru.enjoy.server.data.VariantSostavComponent", idField = {
+	@Child(childClass = "ru.enjoy.server.data.VariantSostavComponent", idField = {
 			"variant", "productId" }, refField = { "variant", "productId" })
 	public List<VariantSostavComponent> sostav = new ArrayList<>();
-	@ChildList(childClass = "ru.enjoy.server.data.VariantSpecialOffer", idField = {
+	@Child(childClass = "ru.enjoy.server.data.VariantSpecialOffer", idField = {
 			"productId", "variant" }, refField = { "productId", "variant" })
 	public List<VariantSpecialOffer> specialOffers = new ArrayList<>();
-	@ChildList(childClass = "ru.enjoy.server.data.VariantImages", idField = {"productId","variant"}, refField = {"productId","variant"})
+	@Child(childClass = "ru.enjoy.server.data.VariantImages", idField = {"productId","variant"}, refField = {"productId","variant"})
 	public List<VariantImages> images = new ArrayList<>();
 
 }
