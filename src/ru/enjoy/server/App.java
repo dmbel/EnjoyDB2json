@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 
 import com.google.gson.*;
 
+import ru.enjoy.server.data.MenuItem;
 import ru.enjoy.server.data.Root;
 import ru.enjoy.server.exceptions.BadDataAnnotationException;
 import ru.enjoy.server.objbuilder.ObjectBuilder;
@@ -54,11 +55,17 @@ public class App {
 			InputStream in = new SequenceInputStream(
 					Collections.enumeration(stream3));
 			// InputStream in = new FileInputStream(args[0]);
-			ob = new ObjectBuilder(new Root());
+			Root root = new Root();
+			ob = new ObjectBuilder(root);
 			DataBase2Object loader = new DataBase2Object();
 
 			loader.load(in, ob);
 			ob.makeStruct();
+			// Кое какое доведение структуры до конечного вида
+			for(MenuItem item : root.menuItems){
+				item.categoryId = item.category == null ? 0 : item.category.categoryId;
+			}
+			// Экспорт в JSON
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			// OutputStream out = new FileOutputStream(args[1]);
 			

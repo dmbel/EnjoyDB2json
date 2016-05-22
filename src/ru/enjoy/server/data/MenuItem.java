@@ -12,5 +12,6 @@ public class MenuItem {
 	public int levelFirst;
 	public int position;
 	@Child(childClass = "ru.enjoy.server.data.CategoryLink", idField = "url", refField = "url")
-	public CategoryLink category;
+	transient public CategoryLink category;
+	public int categoryId;
 }
